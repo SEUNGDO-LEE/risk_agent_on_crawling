@@ -143,18 +143,21 @@ with tab2:
 
                # if st.button("⚠ YouTube 영상 요약 기반 GPT-4 리스크 분석"):
                     if full_caption_text:
-                        st.warning(full_caption_text)
-                     #   full_caption_text = full_caption_text[:3000]  # ✅ 추가!
-                        
-                     #   with st.spinner("🧠 GPT-4 기반 위험요소 분석 중..."):
-                     #       risk_result = detect_risk(full_caption_text)
-                     #       clear_tmp_audio() 
-                     #       st.markdown("## ⚠️ GPT-4 리스크 탐지 결과")
-                     #       st.warning(risk_result)
+                        full_caption_text = full_caption_text[:3000]
+
+                        with st.spinner("🧠 GPT-4 기반 위험요소 분석 중..."):
+                            try:
+                                risk_result = detect_risk(full_caption_text)
+                                st.markdown("## ⚠️ GPT-4 리스크 탐지 결과")
+                                st.warning(risk_result)
+                                clear_tmp_audio()
+                            except Exception as e:
+                                st.error(f"❌ GPT 분석 실패: {str(e)}")
+                                clear_tmp_audio()
 
                     else:
                         st.warning("수집된 영상 요약 정보가 없습니다.")
-                      #  clear_tmp_audio()
+                        clear_tmp_audio()
             
             
    
