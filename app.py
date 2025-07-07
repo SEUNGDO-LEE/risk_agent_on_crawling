@@ -69,7 +69,7 @@ with tab2:
     st.title("🎬 YouTube 영상 크롤링")
 
     keyword = st.text_input("🔍 YouTube 검색 키워드를 입력하세요 (예: ETF, 리스크, 위험, 변동성, 금융, 파생, 자산운용)")
-    video_count = st.radio("🎯 수집할 영상 개수 선택", ["선택", 1, 2, 3], horizontal=True, index=0)
+    video_count = st.radio("🎯 수집할 영상 개수 선택", ["선택", 1, 2], horizontal=True, index=0)
     full_caption_text = ''
     idx = 0
     
@@ -141,6 +141,7 @@ with tab2:
                     
                         #full_caption_text += f"\n\n[영상 {idx+1} - {video['title']}]\n{caption}"
 
+            if idx == video_count-1:
                 if st.button("⚠ YouTube 영상 요약 기반 GPT-4 리스크 분석"):
                     if full_caption_text:
                         full_caption_text = full_caption_text[:3000]
