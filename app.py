@@ -3,7 +3,7 @@ import os
 from openai import OpenAI
 import streamlit as st
 import glob
-from content_loader import fetch_filtered_rss_articles, copy_to_temp, download_audio, transcribe_audio, summarize_text, search_youtube_video
+from content_loader import fetch_filtered_rss_articles, copy_to_temp, download_audio, transcribe_audio, summarize_text, clear_tmp_audio, search_youtube_video
 from risk_detector import detect_risk, generate_response
 
 st.set_page_config(page_title="Augmented LLM 콘텐츠 대응 Agent", layout="wide")
@@ -12,6 +12,7 @@ st.title("📺 Augmented LLM 기반 디지털 콘텐츠 대응 Agent")
 
 # API 키 설정
 os.environ["OPENAI_API_KEY"] = st.secrets['OPENAI_KEY']
+#os.environ["YOUTUBE_API_KEY"] = st.secrets["YOUTUBE_KEY"]
 
 tab1, tab2 = st.tabs(["📰 RSS 뉴스 분석", "📹 YouTube 영상 분석"])
 
@@ -45,8 +46,10 @@ with tab1:
                             result = detect_risk(all_summaries)
                             st.markdown("🧠 **GPT-4 리스크 분석 결과 (전체 기사 요약 기반)**:")
                             st.warning(result)
+                            clear_tmp_audio()
                         except Exception as e:
                             st.error(f"❌ GPT 분석 중 오류 발생: {str(e)}")
+                            clear_tmp_audio()
 
 with tab2:
     st.title("🎬 YouTube 영상 크롤링")
@@ -73,7 +76,10 @@ with tab2:
                     st.markdown(f"### 🎥 {idx+1}. [{video['title']}])")
                     st.markdown(f"🔗 URL: {video['url']}")
                     
-                    audio_file = download_audio(video['url'], idx)
+                    if video['url']:
+                        audio_file = download_audio(video['url'], idx)
+                    else:
+                        st.error("❌ 오디오를 추출할 Youtube 영상이 없습니다.")
                     if not audio_file:
                         st.error("❌ 오디오 다운로드 실패")
                         continue
@@ -92,9 +98,9 @@ with tab2:
                             full_caption_text += f"\n\n[영상 {idx+1} - {video['title']}]\n{summary}"
                         except Exception as e:
                             st.error(f"❌ 영상 내용 요약 중 오류 발생: {str(e)}")
-                            
+
             if st.button("⚠ YouTube 영상 요약 기반 GPT-4 리스크 분석"):
-                if idx==video_count-1:
+                if full_caption_text:
                     
                     with st.spinner("🧠 GPT-4 기반 위험요소 분석 중..."):
                         risk_result = detect_risk(full_caption_text)
