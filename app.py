@@ -111,23 +111,23 @@ with tab2:
                         try:       # tmp_audio/audio_1.mp3
                             transcript = transcribe_audio(safe_audio_path)
                         
-                            summary_list.append(f"[{idx+1}번째 영상 - 제목: {video['title']}]의 요약 및 분석 결과입니다.\n")
-                            summary_list.append(summarize_text(transcript, keyword, video['title'])[:600])
-                            summary_list.append("\n\n")
+                            #summary_list.append(f"[{idx+1}번째 영상 - 제목: {video['title']}]의 요약 및 분석 결과입니다.\n")
+                            #summary_list.append(summarize_text(transcript, keyword, video['title'])[:600])
+                            #summary_list.append("\n\n")
                             
-                            del transcript  
+                           
                             try:
                                 os.remove(safe_audio_path)
                             except: pass
                             #preview = summary[:500] + "..." if len(summary) > 500 else summary
-                            #st.text_area("영상 요약내용", summary[:300] + "..." if len(summary) > 300 else summary, height=200)
-
+                            st.text_area("영상 요약내용", summarize_text(transcript, keyword, video['title']), height=250)
+                            del transcript  
                             #summary_list.append(f"[{idx+1} - {video['title']}]\n{summary}")
 
-                            full_caption_text = "\n\n".join(summary_list)  
+                            #full_caption_text = "\n\n".join(summary_list)  
                         except Exception as e:
                             st.error(f"❌ 영상 내용 요약 중 오류 발생: {str(e)}")
-                            
+                    clear_tmp_audio()    
                         #with st.spinner("자막 수집 중..."):
                         #caption = get_video_captions(video['video_id'])
                         #if caption.startswith("❌"):
@@ -141,24 +141,21 @@ with tab2:
                     
                         #full_caption_text += f"\n\n[영상 {idx+1} - {video['title']}]\n{caption}"
 
-            if idx == video_count-1:
-                if st.button("⚠ YouTube 영상 요약 기반 GPT-4 리스크 분석"):
-                    if full_caption_text:
-                        full_caption_text = full_caption_text[:3000]
+                        #if idx == video_count-1:
+                        #    if st.button("⚠ YouTube 영상 요약 기반 GPT-4 리스크 분석"):
+                        #        full_caption_text = full_caption_text[:3000]
+#
+                        #        with st.spinner("🧠 GPT-4 기반 위험요소 분석 중..."):
+                        #            try:
+                        #                risk_result = detect_risk(full_caption_text)
+                        #                st.markdown("## ⚠️ GPT-4 리스크 탐지 결과")
+                        #                st.warning(risk_result)
+                        #                clear_tmp_audio()
+                        #            except Exception as e:
+                        #                st.error(f"❌ GPT 분석 실패: {str(e)}")
+                        #                clear_tmp_audio()
 
-                        with st.spinner("🧠 GPT-4 기반 위험요소 분석 중..."):
-                            try:
-                                risk_result = detect_risk(full_caption_text)
-                                st.markdown("## ⚠️ GPT-4 리스크 탐지 결과")
-                                st.warning(risk_result)
-                                clear_tmp_audio()
-                            except Exception as e:
-                                st.error(f"❌ GPT 분석 실패: {str(e)}")
-                                clear_tmp_audio()
-
-                    else:
-                        st.warning("수집된 영상 요약 정보가 없습니다.")
-                        clear_tmp_audio()
+                                
             
             
    
