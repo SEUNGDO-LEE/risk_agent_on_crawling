@@ -69,17 +69,15 @@ with tab2:
     st.title("🎬 YouTube 영상 크롤링")
 
     keyword = st.text_input("🔍 YouTube 검색 키워드를 입력하세요 (예: ETF, 리스크, 위험, 변동성, 금융, 파생, 자산운용)")
-  
+
     if keyword:
         with st.spinner("YouTube 영상 검색 중..."):
-            videos = search_youtube_video(keyword)
-            if not videos:
+            video = search_youtube_video(keyword)[0]
+            if not video:
                 st.error("❌ 적합한 영상을 찾을 수 없습니다. 키워드를 바꿔보세요.")
                 
             else:  
-                for idx, video in enumerate(videos):
-                    
-                    st.markdown(f"### 🎥 {idx+1}. [{video['title']}])")
+                    st.markdown(f"### 🎥 [{video['title']}])")
                     st.markdown(f"🔗 URL: {video['url']}")
                     
                     try:
