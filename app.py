@@ -111,17 +111,19 @@ with tab2:
                             try:       # tmp_audio/audio_1.mp3
                                 transcript = transcribe_audio(safe_audio_path)
                             
-                                summary = summarize_text(transcript, keyword, video['title'])
-                                del transcript  # ✅ 텍스트 1,000~10,000자 해제
+                                summary_list.append(f"[{idx+1} - {video['title']}]\n")
+                                summary_list.append(summarize_text(transcript, keyword, video['title'])[:600])
+                                
+                                del transcript  
                                 try:
                                     os.remove(safe_audio_path)
                                 except: pass
                                 #preview = summary[:500] + "..." if len(summary) > 500 else summary
-                                st.text_area("영상 요약내용", summary[:300] + "..." if len(summary) > 300 else summary, height=200)
+                                #st.text_area("영상 요약내용", summary[:300] + "..." if len(summary) > 300 else summary, height=200)
 
-                                summary_list.append(f"[{idx+1} - {video['title']}]\n{summary}")
+                                #summary_list.append(f"[{idx+1} - {video['title']}]\n{summary}")
 
-                                full_caption_text = "\n\n".join(summary_list[:5])  # 최대 5개까지만
+                                full_caption_text = "\n\n".join(summary_list[:3])  # 최대 3개까지만
                             except Exception as e:
                                 st.error(f"❌ 영상 내용 요약 중 오류 발생: {str(e)}")
                             
