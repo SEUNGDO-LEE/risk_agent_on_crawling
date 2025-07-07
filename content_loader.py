@@ -68,7 +68,7 @@ def summarize_text(text, keyword, title):
     prompt = (
         f"다음은 유튜브 영상의 전사 내용이야\n"
         f"전사 내용: {text}\n"
-        f"이 영상 검색에 사용된 키워드는 {keyword}이고 영상의 제목은 {title}이야. 이 내용을 4000자 이내로 요약해줘.\n"
+        f"이 영상 검색에 사용된 키워드는 {keyword}이고 영상의 제목은 {title}이야. 이 내용을 600자 이내로 요약해줘.\n"
         "가능하다면 사회적·정치적·윤리적 또는 법적 리스크 요소가 있는지도 추정해줘.\n"
     )   
     response = client.chat.completions.create(
@@ -76,7 +76,10 @@ def summarize_text(text, keyword, title):
         messages=[{"role": "user", "content": prompt}]
     )
     return response.choices[0].message.content
-                          
+
+def clear_tmp_audio():
+    shutil.rmtree("tmp_audio", ignore_errors=True)
+                              
 def fetch_filtered_rss_articles(keyword_list):
     results = []
     for url in RSS_FEEDS:
