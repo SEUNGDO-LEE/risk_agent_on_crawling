@@ -121,13 +121,14 @@ with tab2:
                             except: pass
                             #preview = summary[:500] + "..." if len(summary) > 500 else summary
                             st.text_area("영상 요약내용", summarize_text(transcript, keyword, video['title']), height=250)
+                            idx+=1
                             del transcript  
                             #summary_list.append(f"[{idx+1} - {video['title']}]\n{summary}")
 
                             #full_caption_text = "\n\n".join(summary_list)  
                         except Exception as e:
                             st.error(f"❌ 영상 내용 요약 중 오류 발생: {str(e)}")
-                    clear_tmp_audio()    
+                   
                         #with st.spinner("자막 수집 중..."):
                         #caption = get_video_captions(video['video_id'])
                         #if caption.startswith("❌"):
@@ -141,7 +142,8 @@ with tab2:
                     
                         #full_caption_text += f"\n\n[영상 {idx+1} - {video['title']}]\n{caption}"
 
-                        #if idx == video_count-1:
+                        if idx == video_count-1:
+                             clear_tmp_audio()    
                         #    if st.button("⚠ YouTube 영상 요약 기반 GPT-4 리스크 분석"):
                         #        full_caption_text = full_caption_text[:3000]
 #
