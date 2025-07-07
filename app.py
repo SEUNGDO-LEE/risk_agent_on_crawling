@@ -14,7 +14,6 @@ st.title("📺 Augmented LLM 기반 디지털 콘텐츠 대응 Agent")
 os.environ["OPENAI_API_KEY"] = st.secrets['OPENAI_KEY']
 #os.environ["YOUTUBE_API_KEY"] = st.secrets["YOUTUBE_KEY"]
 
-
 tab1, tab2 = st.tabs(["📰 RSS 뉴스 분석", "📹 YouTube 영상 분석"])
 
 with tab1:
@@ -88,6 +87,7 @@ with tab2:
                     if not videos:
                         st.error("❌ 자막이 있는 영상을 찾을 수 없습니다. 키워드를 바꿔보세요.")
                     
+                    summary_list = []
                     for idx, video in enumerate(videos):
                         
                         st.markdown(f"### 🎥 {idx+1}. [{video['title']}])")
@@ -103,22 +103,25 @@ with tab2:
 
                         # ✅ 경로 안전한 디렉터리로 복사
                         safe_audio_path = copy_to_temp(audio_file)
-                        if os.path.exists(audio_file):
+                        try:
                             os.remove(audio_file)
+                        except: pass
                         st.markdown(f"🗂️ 파일 경로: {safe_audio_path}")
                         with st.spinner("🧠 영상 내용 요약 중..."):
                             try:       # tmp_audio/audio_1.mp3
                                 transcript = transcribe_audio(safe_audio_path)
                             
                                 summary = summarize_text(transcript, keyword, video['title'])
-                                if len(summary) > 800:
-                                    preview = summary[:800] + "..."
-                                if os.path.exists(safe_audio_path):
+                                del transcript  # ✅ 텍스트 1,000~10,000자 해제
+                                try:
                                     os.remove(safe_audio_path)
+                                except: pass
                                 #preview = summary[:500] + "..." if len(summary) > 500 else summary
-                                st.text_area("영상 요약내용", summary, height=250)
+                                st.text_area("영상 요약내용", summary[:300] + "..." if len(summary) > 300 else summary, height=200)
 
-                                full_caption_text += f"\n\n[영상 {idx+1} - {video['title']}]\n{summary}"
+                                summary_list.append(f"[{idx+1} - {video['title']}]\n{summary}")
+
+                                full_caption_text = "\n\n".join(summary_list[:5])  # 최대 5개까지만
                             except Exception as e:
                                 st.error(f"❌ 영상 내용 요약 중 오류 발생: {str(e)}")
                             
