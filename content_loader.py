@@ -34,6 +34,35 @@ def get_youtube_api():
 
 youtube = get_youtube_api()
 
+def get_video_metadata(video_id):
+    get_youtube_api()
+    res = youtube.videos().list(part="snippet", id=video_id).execute()
+    snippet = res["items"][0]["snippet"]
+    return snippet["title"], snippet["description"]
+
+def summarize_with_gpt(title, description, transcript):
+    prompt = f"""다음은 유튜브 영상의 제목과 설명과 자막이야:
+
+제목: {title}
+설명: {description}
+자막: {transcript}
+
+이 내용을 500자 이내로 요약해줘. 사회적·정치적·윤리적 또는 법적 리스크가 있다면 함께 알려줘.
+"""
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": prompt}]
+    )
+    return response.choices[0].message.content
+
+def get_transcript(video_id, lang_list=["ko", "en"]):
+    try:
+        transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=lang_list)
+        text = " ".join([seg["text"] for seg in transcript])
+        return text
+    except Exception as e:
+        return f"❌ 자막 불러오기 실패: {str(e)}"
+    
 
 def copy_to_temp(filepath):
     filename = os.path.basename(filepath)
@@ -115,36 +144,35 @@ def get_video_duration_seconds(video_id):
     duration = isodate.parse_duration(duration_iso)
     return duration.total_seconds()
 
-def search_youtube_video(query, max_results):
-    
-    search_response = youtube.search().list(
-        q=query,
-        part="snippet",
-        maxResults=max_results * 2,  # 필터링 대비 넉넉하게 요청
-        type="video"
-    ).execute()
+def search_youtube_video(query):
+    max_attempts = 5  # 무한루프 방지를 위한 안전장치
+    attempts = 0
 
-    videos = []
-    for item in search_response["items"]:
-        video_id = item["id"]["videoId"]
-        title = item["snippet"]["title"]
-        url = f"https://www.youtube.com/watch?v={video_id}"
+    while attempts < max_attempts:
+        attempts += 1
 
-        try:
-            duration_sec = get_video_duration_seconds(video_id)
-        except Exception as e:
-            print(f"⛔ duration 조회 실패: {e}")
-            continue
-        if duration_sec < 200:  # 4분 미만 필터링
-            continue
+        search_response = youtube.search().list(
+            q=query,
+            part="snippet",
+            maxResults=10,
+            type="video"
+        ).execute()
 
-        videos.append({
-            "video_id": video_id,
-            "title": title,
-            "url": url
-        })
+        for item in search_response["items"]:
+            video_id = item["id"]["videoId"]
+            title = item["snippet"]["title"]
+            url = f"https://www.youtube.com/watch?v={video_id}"
 
-        if len(videos) >= max_results:
-            break
+            try:
+                duration_sec = get_video_duration_seconds(video_id)
+                if duration_sec >= 200:
+                    return [{
+                        "video_id": video_id,
+                        "title": title,
+                        "url": url
+                    }]
+            except Exception as e:
+                print(f"⛔ duration 조회 실패: {e}")
+                continue
 
-    return videos
+    return []  # 조건을 만족하는 영상이 없을 경우
