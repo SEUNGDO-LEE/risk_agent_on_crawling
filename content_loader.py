@@ -1,6 +1,5 @@
 # content_loader.py
 import os
-import subprocess
 from openai import OpenAI
 # pip install yt-dlp openai
 import streamlit as st
@@ -8,10 +7,9 @@ import isodate  # pip install isodate
 import assemblyai as aai
 
 import feedparser
-from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound
+from youtube_transcript_api import YouTubeTranscriptApi
 # pip install --upgrade google-api-python-client
 from googleapiclient.discovery import build
-import shutil
 
 os.environ["OPENAI_API_KEY"] = st.secrets['OPENAI_KEY']
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
@@ -94,11 +92,11 @@ def get_video_duration_seconds(video_id):
     return duration.total_seconds()
 
 def search_youtube_video(query):
-    max_attempts = 5  # 무한루프 방지를 위한 안전장치
-    attempts = 0
+   # max_attempts = 5  # 무한루프 방지를 위한 안전장치
+    #attempts = 0
 
-    while attempts < max_attempts:
-        attempts += 1
+    #while attempts < max_attempts:
+        #attempts += 1
 
         search_response = youtube.search().list(
             q=query,
@@ -113,8 +111,8 @@ def search_youtube_video(query):
             url = f"https://www.youtube.com/watch?v={video_id}"
 
             try:
-                duration_sec = get_video_duration_seconds(video_id)
-                if duration_sec >= 200:
+                #duration_sec = get_video_duration_seconds(video_id)
+                #if duration_sec >= 200:
                     return [{
                         "video_id": video_id,
                         "title": title,
@@ -122,6 +120,7 @@ def search_youtube_video(query):
                     }]
             except Exception as e:
                 print(f"⛔ duration 조회 실패: {e}")
-                continue
+                return []  # 조건을 만족하는 영상이 없을 경우
+                #continue
 
-    return []  # 조건을 만족하는 영상이 없을 경우
+    
