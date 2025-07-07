@@ -112,7 +112,7 @@ with tab2:
                             os.remove(safe_audio_path)
                         except: pass
                         #preview = summary[:500] + "..." if len(summary) > 500 else summary
-                        st.text_area(f"영상 요약내용 {idx} {video_count}", summary, height=200)
+                        st.text_area(f"영상 요약내용", summary, height=200)
                         
                         #summary_list.append(f"[{idx+1} - {video['title']}]\n{summary}")
 
