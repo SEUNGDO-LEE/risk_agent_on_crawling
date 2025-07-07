@@ -3,7 +3,7 @@ import os
 from openai import OpenAI
 import streamlit as st
 import glob
-from content_loader import fetch_filtered_rss_articles, copy_to_temp, download_audio, transcribe_audio, summarize_text, clear_tmp_audio, search_youtube_video
+from content_loader import get_video_metadata, fetch_filtered_rss_articles, get_transcript, summarize_with_gpt, copy_to_temp, download_audio, transcribe_audio, summarize_text, clear_tmp_audio, search_youtube_video
 from risk_detector import detect_risk, generate_response
 
 st.set_page_config(page_title="Augmented LLM 콘텐츠 대응 Agent", layout="wide")
@@ -69,16 +69,12 @@ with tab2:
     st.title("🎬 YouTube 영상 크롤링")
 
     keyword = st.text_input("🔍 YouTube 검색 키워드를 입력하세요 (예: ETF, 리스크, 위험, 변동성, 금융, 파생, 자산운용)")
-    #video_count = st.radio("🎯 수집할 영상 개수 선택", ["선택", 1], horizontal=True, index=0)
-   
-    idx = 0
-    
-    
+  
     if keyword:
         with st.spinner("YouTube 영상 검색 중..."):
-            videos = search_youtube_video(keyword, max_results=1)
+            videos = search_youtube_video(keyword)
             if not videos:
-                st.error("❌ 자막이 있는 영상을 찾을 수 없습니다. 키워드를 바꿔보세요.")
+                st.error("❌ 적합한 영상을 찾을 수 없습니다. 키워드를 바꿔보세요.")
                 
             else:  
                 for idx, video in enumerate(videos):
@@ -86,39 +82,15 @@ with tab2:
                     st.markdown(f"### 🎥 {idx+1}. [{video['title']}])")
                     st.markdown(f"🔗 URL: {video['url']}")
                     
-                    if video['url']:
-                        audio_file = download_audio(video['url'], idx)
-                    else:
-                        st.error("❌ 오디오를 추출할 Youtube 영상이 없습니다.")
-                    if not audio_file:
-                        st.error("❌ 오디오 다운로드 실패")
-                        continue
-
-                    # ✅ 경로 안전한 디렉터리로 복사
-                    safe_audio_path = copy_to_temp(audio_file)
                     try:
-                        os.remove(audio_file)
-                    except: pass
-                    st.markdown(f"🗂️ 파일 경로: {safe_audio_path}")
-                    
-                    try:       # tmp_audio/audio_1.mp3
-                        transcript = transcribe_audio(safe_audio_path)
-                    
-                        #summary_list.append(f"[{idx+1}번째 영상 - 제목: {video['title']}]의 요약 및 분석 결과입니다.\n")
-                        #summary_list.append(summarize_text(transcript, keyword, video['title'])[:600])
-                        #summary_list.append("\n\n")
-                        summary = summarize_text(transcript, keyword, video['title'])
-                        try:
-                            os.remove(safe_audio_path)
-                        except: pass
-                        #preview = summary[:500] + "..." if len(summary) > 500 else summary
-                        st.text_area(f"영상 요약내용", summary, height=200)
+                        title, desc = get_video_metadata(video['video_id'])
+                        transcript = get_transcript(video['video_id'], 'ko')
+                        summary = summarize_with_gpt(title, desc, transcript)
                         
-                        #summary_list.append(f"[{idx+1} - {video['title']}]\n{summary}")
-
-                        #full_caption_text = "\n\n".join(summary_list)  
+                        st.text_area("영상 분석 내용", summary)
                     except Exception as e:
                         st.error(f"❌ 영상 내용 요약 중 오류 발생: {str(e)}")
+                
                 
                     #with st.spinner("자막 수집 중..."):
                     #caption = get_video_captions(video['video_id'])
