@@ -114,7 +114,7 @@ def search_youtube_video(query, max_results):
     search_response = youtube.search().list(
         q=query,
         part="snippet",
-        maxResults=max_results * 4,  # 필터링 대비 넉넉하게 요청
+        maxResults=max_results * 3,  # 필터링 대비 넉넉하게 요청
         type="video"
     ).execute()
 
@@ -130,7 +130,7 @@ def search_youtube_video(query, max_results):
             print(f"⛔ duration 조회 실패: {e}")
             continue
 
-        if duration_sec < 600:  # 10분 미만 필터링
+        if duration_sec < 300:  # 5분 미만 필터링
             continue
 
         videos.append({
