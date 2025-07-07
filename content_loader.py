@@ -16,7 +16,7 @@ import shutil
 os.environ["OPENAI_API_KEY"] = st.secrets['OPENAI_KEY']
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 os.environ["YOUTUBE_API_KEY"] = st.secrets["YOUTUBE_KEY"]
-youtube = build("youtube", "v3", developerKey=os.environ["YOUTUBE_API_KEY"])
+
 os.environ["ASSEMBLY_API_KEY"] = st.secrets["ASSEMBLYAI_KEY"]
 aai.settings.api_key = os.environ["ASSEMBLY_API_KEY"] 
 
@@ -27,6 +27,12 @@ RSS_FEEDS = [
     "https://www.yna.co.kr/finance/all?site=rss"
 ]
 
+
+@st.cache_resource
+def get_youtube_api():
+    return build("youtube", "v3", developerKey=os.environ["YOUTUBE_KEY"])
+
+youtube = get_youtube_api()
 
 
 def copy_to_temp(filepath):
