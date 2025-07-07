@@ -70,7 +70,7 @@ with tab2:
     st.title("🎬 YouTube 영상 크롤링")
 
     keyword = st.text_input("🔍 YouTube 검색 키워드를 입력하세요 (예: ETF, 리스크, 위험, 변동성, 금융, 파생, 자산운용)")
-    video_count = st.radio("🎯 수집할 영상 개수 선택", ["선택", 1, 3, 5], horizontal=True, index=0)
+    video_count = st.radio("🎯 수집할 영상 개수 선택", ["선택", 1, 2, 3], horizontal=True, index=0)
     full_caption_text = ''
     idx = 0
     
@@ -80,69 +80,74 @@ with tab2:
         if not keyword:
             st.warning("키워드를 입력해주세요.")
         else:
-            
-            with st.spinner("YouTube 영상 검색 중..."):
-                videos = search_youtube_video(keyword, max_results=video_count)
-                if not videos:
-                    st.error("❌ 자막이 있는 영상을 찾을 수 없습니다. 키워드를 바꿔보세요.")
-                
-                for idx, video in enumerate(videos):
+            if video_count and int(video_count) > 3:
+                st.warning("⚠ 메모리 문제로 영상은 최대 3개까지만 선택해주세요.")
+            else:
+                with st.spinner("YouTube 영상 검색 중..."):
+                    videos = search_youtube_video(keyword, max_results=video_count)
+                    if not videos:
+                        st.error("❌ 자막이 있는 영상을 찾을 수 없습니다. 키워드를 바꿔보세요.")
                     
-                    st.markdown(f"### 🎥 {idx+1}. [{video['title']}])")
-                    st.markdown(f"🔗 URL: {video['url']}")
-                    
-                    if video['url']:
-                        audio_file = download_audio(video['url'], idx)
-                    else:
-                        st.error("❌ 오디오를 추출할 Youtube 영상이 없습니다.")
-                    if not audio_file:
-                        st.error("❌ 오디오 다운로드 실패")
-                        continue
-
-                    # ✅ 경로 안전한 디렉터리로 복사
-                    safe_audio_path = copy_to_temp(audio_file)
-                    if os.path.exists(audio_file):
-                        os.remove(audio_file)
-                    st.markdown(f"🗂️ 파일 경로: {safe_audio_path}")
-                    with st.spinner("🧠 영상 내용 요약 중..."):
-                        try:       # tmp_audio/audio_1.mp3
-                            transcript = transcribe_audio(safe_audio_path)
-                           
-                            summary = summarize_text(transcript, keyword, video['title'])
-                            if os.path.exists(safe_audio_path):
-                                os.remove(safe_audio_path)
-                            #preview = summary[:500] + "..." if len(summary) > 500 else summary
-                            st.text_area("영상 요약내용", summary, height=250)
-
-                            full_caption_text += f"\n\n[영상 {idx+1} - {video['title']}]\n{summary}"
-                        except Exception as e:
-                            st.error(f"❌ 영상 내용 요약 중 오류 발생: {str(e)}")
+                    for idx, video in enumerate(videos):
                         
-                    #with st.spinner("자막 수집 중..."):
-                    #caption = get_video_captions(video['video_id'])
-                    #if caption.startswith("❌"):
-                    #    st.error(caption)
-                    #    continue
-                    #st.text_area("📝 자막", captions[:1500] + "..." if len(captions) > 1500 else captions, height=300)
-                    #st.markdown("---")
-                    
-                    #preview = caption[:500] + "..." if len(caption) > 500 else caption
-                    #st.text_area("자막 미리보기", preview, height=200)
-                
-                    #full_caption_text += f"\n\n[영상 {idx+1} - {video['title']}]\n{caption}"
+                        st.markdown(f"### 🎥 {idx+1}. [{video['title']}])")
+                        st.markdown(f"🔗 URL: {video['url']}")
+                        
+                        if video['url']:
+                            audio_file = download_audio(video['url'], idx)
+                        else:
+                            st.error("❌ 오디오를 추출할 Youtube 영상이 없습니다.")
+                        if not audio_file:
+                            st.error("❌ 오디오 다운로드 실패")
+                            continue
 
-            if st.button("⚠ YouTube 영상 요약 기반 GPT-4 리스크 분석"):
-                if full_caption_text:
-                    
-                    with st.spinner("🧠 GPT-4 기반 위험요소 분석 중..."):
-                        risk_result = detect_risk(full_caption_text)
+                        # ✅ 경로 안전한 디렉터리로 복사
+                        safe_audio_path = copy_to_temp(audio_file)
+                        if os.path.exists(audio_file):
+                            os.remove(audio_file)
+                        st.markdown(f"🗂️ 파일 경로: {safe_audio_path}")
+                        with st.spinner("🧠 영상 내용 요약 중..."):
+                            try:       # tmp_audio/audio_1.mp3
+                                transcript = transcribe_audio(safe_audio_path)
+                            
+                                summary = summarize_text(transcript, keyword, video['title'])
+                                if len(summary) > 800:
+                                    preview = summary[:800] + "..."
+                                if os.path.exists(safe_audio_path):
+                                    os.remove(safe_audio_path)
+                                #preview = summary[:500] + "..." if len(summary) > 500 else summary
+                                st.text_area("영상 요약내용", summary, height=250)
 
-                        st.markdown("## ⚠️ GPT-4 리스크 탐지 결과")
-                        st.warning(risk_result)
+                                full_caption_text += f"\n\n[영상 {idx+1} - {video['title']}]\n{summary}"
+                            except Exception as e:
+                                st.error(f"❌ 영상 내용 요약 중 오류 발생: {str(e)}")
+                            
+                        #with st.spinner("자막 수집 중..."):
+                        #caption = get_video_captions(video['video_id'])
+                        #if caption.startswith("❌"):
+                        #    st.error(caption)
+                        #    continue
+                        #st.text_area("📝 자막", captions[:1500] + "..." if len(captions) > 1500 else captions, height=300)
+                        #st.markdown("---")
+                        
+                        #preview = caption[:500] + "..." if len(caption) > 500 else caption
+                        #st.text_area("자막 미리보기", preview, height=200)
+                    
+                        #full_caption_text += f"\n\n[영상 {idx+1} - {video['title']}]\n{caption}"
+
+                if st.button("⚠ YouTube 영상 요약 기반 GPT-4 리스크 분석"):
+                    if full_caption_text:
+                        full_caption_text = full_caption_text[:3000]  # ✅ 추가!
+                        
+                        with st.spinner("🧠 GPT-4 기반 위험요소 분석 중..."):
+                            risk_result = detect_risk(full_caption_text)
+                            clear_tmp_audio() 
+                            st.markdown("## ⚠️ GPT-4 리스크 탐지 결과")
+                            st.warning(risk_result)
+
+                    else:
+                        st.warning("수집된 영상 요약 정보가 없습니다.")
                         clear_tmp_audio()
-                else:
-                    st.warning("수집된 영상 요약 정보가 없습니다.")
-                    clear_tmp_audio()
             
             
    
