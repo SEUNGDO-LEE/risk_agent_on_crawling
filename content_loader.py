@@ -114,7 +114,7 @@ def search_youtube_video(query, max_results):
     search_response = youtube.search().list(
         q=query,
         part="snippet",
-        maxResults=max_results * 5,  # 필터링 대비 넉넉하게 요청
+        maxResults=max_results * 4,  # 필터링 대비 넉넉하게 요청
         type="video"
     ).execute()
 
