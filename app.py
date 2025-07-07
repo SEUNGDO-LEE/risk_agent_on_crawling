@@ -141,7 +141,7 @@ with tab2:
                     
                         #full_caption_text += f"\n\n[영상 {idx+1} - {video['title']}]\n{caption}"
 
-               # if st.button("⚠ YouTube 영상 요약 기반 GPT-4 리스크 분석"):
+                if st.button("⚠ YouTube 영상 요약 기반 GPT-4 리스크 분석"):
                     if full_caption_text:
                         full_caption_text = full_caption_text[:3000]
 
