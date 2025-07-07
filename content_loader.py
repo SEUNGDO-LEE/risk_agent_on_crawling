@@ -104,23 +104,23 @@ def fetch_filtered_rss_articles(keyword_list):
 
     return results
 
-#def get_video_duration_seconds(video_id):
+def get_video_duration_seconds(video_id):
     
- #   response = youtube.videos().list(
-#        part="contentDetails",
- #       id=video_id
- #   ).execute()
+    response = youtube.videos().list(
+        part="contentDetails",
+        id=video_id
+    ).execute()
 
- #   duration_iso = response["items"][0]["contentDetails"]["duration"]
- #   duration = isodate.parse_duration(duration_iso)
- #   return duration.total_seconds()
+    duration_iso = response["items"][0]["contentDetails"]["duration"]
+    duration = isodate.parse_duration(duration_iso)
+    return duration.total_seconds()
 
 def search_youtube_video(query, max_results):
     
     search_response = youtube.search().list(
         q=query,
         part="snippet",
-       # maxResults=max_results * 2,  # 필터링 대비 넉넉하게 요청
+        maxResults=max_results * 2,  # 필터링 대비 넉넉하게 요청
         type="video"
     ).execute()
 
@@ -130,14 +130,13 @@ def search_youtube_video(query, max_results):
         title = item["snippet"]["title"]
         url = f"https://www.youtube.com/watch?v={video_id}"
 
-      #  try:
-      #      duration_sec = get_video_duration_seconds(video_id)
-      #  except Exception as e:
-       #     print(f"⛔ duration 조회 실패: {e}")
-      #      continue
-#
-      #  if duration_sec < 300:  # 5분 미만 필터링
-       #     continue
+        try:
+            duration_sec = get_video_duration_seconds(video_id)
+        except Exception as e:
+            print(f"⛔ duration 조회 실패: {e}")
+            continue
+        if duration_sec < 200:  # 4분 미만 필터링
+            continue
 
         videos.append({
             "video_id": video_id,
