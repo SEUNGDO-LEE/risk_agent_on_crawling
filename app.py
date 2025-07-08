@@ -2,14 +2,14 @@
 import os
 import streamlit as st
 from content_loader import get_video_metadata, fetch_filtered_rss_articles, get_transcript, summarize_with_gpt, search_youtube_video
-from risk_detector import detect_risk, generate_response
+from risk_detector import detect_risk
 
 st.set_page_config(page_title="Augmented LLM 콘텐츠 대응 Agent", layout="wide")
 
 st.title("📺 Augmented LLM 기반 디지털 콘텐츠 대응 Agent")
 
 # API 키 설정
-#os.environ["OPENAI_API_KEY"] = st.secrets['OPENAI_KEY']
+os.environ["OPENAI_API_KEY"] = st.secrets['OPENAI_KEY']
 #os.environ["YOUTUBE_API_KEY"] = st.secrets["YOUTUBE_KEY"]
 
 tab1, tab2 = st.tabs(["📰 RSS 뉴스 분석", "📹 YouTube 영상 분석"])
