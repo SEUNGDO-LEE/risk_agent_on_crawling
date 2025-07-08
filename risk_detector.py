@@ -5,10 +5,6 @@ import numpy as np
 import os
 from openai import OpenAI
 
-os.environ["OPENAI_API_KEY"] = st.secrets['OPENAI_KEY']
-#client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-
-
 def detect_risk(text: str) -> str:
     prompt = (
         "다음 콘텐츠에서 사회적, 정치적, 윤리적 또는 법적 리스크 요소를 요약해줘. "
