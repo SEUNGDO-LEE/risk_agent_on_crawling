@@ -3,7 +3,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import os
-from openai import OpenAI
+import openai
 import isodate  # pip install isodate
 import assemblyai as aai
 
@@ -45,8 +45,9 @@ def summarize_with_gpt(title, description, transcript):
 
 이 내용을 500자 이내로 요약해줘. 사회적·정치적·윤리적 또는 법적 리스크가 있다면 함께 알려줘."""
     
-    client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-    response = client.chat.completions.create(
+    openai.api_key = os.environ.get("OPENAI_API_KEY")
+
+    response = openai.ChatCompletion.create(
         model="gpt-4o",
         messages=[{"role": "user", "content": prompt}]
     )
@@ -104,8 +105,8 @@ def search_youtube_video(query):
             url = f"https://www.youtube.com/watch?v={video_id}"
 
             try:
-                duration_sec = get_video_duration_seconds(video_id)
-                if duration_sec >= 200:
+                #duration_sec = get_video_duration_seconds(video_id)
+                #if duration_sec >= 200:
                     return [{
                         "video_id": video_id,
                         "title": title,
