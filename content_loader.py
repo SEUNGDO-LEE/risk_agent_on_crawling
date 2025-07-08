@@ -14,7 +14,6 @@ from googleapiclient.discovery import build
 
 os.environ["OPENAI_API_KEY"] = st.secrets['OPENAI_KEY']
 os.environ["YOUTUBE_API_KEY"] = st.secrets["YOUTUBE_KEY"]
-
 os.environ["ASSEMBLY_API_KEY"] = st.secrets["ASSEMBLYAI_KEY"]
 aai.settings.api_key = os.environ["ASSEMBLY_API_KEY"] 
 
@@ -39,14 +38,16 @@ def get_video_metadata(video_id):
     return snippet["title"], snippet["description"]
 
 def summarize_with_gpt(title, description, transcript):
+    
+    
     prompt = f"""다음은 유튜브 영상의 제목과 설명과 자막이야:
 
 제목: {title}
 설명: {description}
 자막: {transcript}
 
-이 내용을 500자 이내로 요약해줘. 사회적·정치적·윤리적 또는 법적 리스크가 있다면 함께 알려줘.
-"""
+이 내용을 500자 이내로 요약해줘. 사회적·정치적·윤리적 또는 법적 리스크가 있다면 함께 알려줘."""
+    
     client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
     response = client.chat.completions.create(
         model="gpt-4o",
@@ -93,12 +94,6 @@ def get_video_duration_seconds(video_id):
     return duration.total_seconds()
 
 def search_youtube_video(query):
-   # max_attempts = 5  # 무한루프 방지를 위한 안전장치
-    #attempts = 0
-
-    #while attempts < max_attempts:
-        #attempts += 1
-
         search_response = youtube.search().list(
             q=query,
             part="snippet",
@@ -120,8 +115,8 @@ def search_youtube_video(query):
                         "url": url
                     }]
             except Exception as e:
+                
                 print(f"⛔ duration 조회 실패: {e}")
-                return []  # 조건을 만족하는 영상이 없을 경우
-                #continue
+                return [] 
 
     
