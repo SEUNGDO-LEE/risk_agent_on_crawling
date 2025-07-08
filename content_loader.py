@@ -12,7 +12,6 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from googleapiclient.discovery import build
 
 os.environ["OPENAI_API_KEY"] = st.secrets['OPENAI_KEY']
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 os.environ["YOUTUBE_API_KEY"] = st.secrets["YOUTUBE_KEY"]
 
 os.environ["ASSEMBLY_API_KEY"] = st.secrets["ASSEMBLYAI_KEY"]
@@ -47,6 +46,7 @@ def summarize_with_gpt(title, description, transcript):
 
 이 내용을 500자 이내로 요약해줘. 사회적·정치적·윤리적 또는 법적 리스크가 있다면 함께 알려줘.
 """
+    client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=[{"role": "user", "content": prompt}]
