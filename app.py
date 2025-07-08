@@ -1,8 +1,8 @@
+from content_loader import get_video_metadata, fetch_filtered_rss_articles, get_transcript, summarize_with_gpt, search_youtube_video
+from risk_detector import detect_risk
 
 import os
 import streamlit as st
-from content_loader import get_video_metadata, fetch_filtered_rss_articles, get_transcript, summarize_with_gpt, search_youtube_video
-from risk_detector import detect_risk
 
 st.set_page_config(page_title="Augmented LLM 콘텐츠 대응 Agent", layout="wide")
 
@@ -10,7 +10,8 @@ st.title("📺 Augmented LLM 기반 디지털 콘텐츠 대응 Agent")
 
 # API 키 설정
 os.environ["OPENAI_API_KEY"] = st.secrets['OPENAI_KEY']
-#os.environ["YOUTUBE_API_KEY"] = st.secrets["YOUTUBE_KEY"]
+os.environ["YOUTUBE_API_KEY"] = st.secrets["YOUTUBE_KEY"]
+os.environ["ASSEMBLY_API_KEY"] = st.secrets["ASSEMBLYAI_KEY"]
 
 tab1, tab2 = st.tabs(["📰 RSS 뉴스 분석", "📹 YouTube 영상 분석"])
 
@@ -81,6 +82,7 @@ with tab2:
                     try:
                         title, desc = get_video_metadata(video['video_id'])
                         transcript = get_transcript(video['video_id'], 'ko')
+                        
                         summary = summarize_with_gpt(title, desc, transcript)
                         
                         st.text_area("영상 분석 내용", summary)
