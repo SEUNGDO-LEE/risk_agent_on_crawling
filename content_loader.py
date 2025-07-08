@@ -1,8 +1,9 @@
 # content_loader.py
+import streamlit as st
+import pandas as pd
+import numpy as np
 import os
 from openai import OpenAI
-# pip install yt-dlp openai
-import streamlit as st
 import isodate  # pip install isodate
 import assemblyai as aai
 
