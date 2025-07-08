@@ -12,9 +12,6 @@ from youtube_transcript_api import YouTubeTranscriptApi
 # pip install --upgrade google-api-python-client
 from googleapiclient.discovery import build
 
-os.environ["OPENAI_API_KEY"] = st.secrets['OPENAI_KEY']
-os.environ["YOUTUBE_API_KEY"] = st.secrets["YOUTUBE_KEY"]
-os.environ["ASSEMBLY_API_KEY"] = st.secrets["ASSEMBLYAI_KEY"]
 aai.settings.api_key = os.environ["ASSEMBLY_API_KEY"] 
 
 RSS_FEEDS = [
@@ -107,8 +104,8 @@ def search_youtube_video(query):
             url = f"https://www.youtube.com/watch?v={video_id}"
 
             try:
-                #duration_sec = get_video_duration_seconds(video_id)
-                #if duration_sec >= 200:
+                duration_sec = get_video_duration_seconds(video_id)
+                if duration_sec >= 200:
                     return [{
                         "video_id": video_id,
                         "title": title,
